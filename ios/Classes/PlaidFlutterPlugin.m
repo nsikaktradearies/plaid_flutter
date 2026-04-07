@@ -31,12 +31,18 @@ static NSString* const kSimulatedBehavior = @"simulatedBehavior";
     UIViewController *_presentedViewController;
 }
 
+static PlaidFlutterPlugin *_sharedInstance = nil;
+
++ (instancetype _Nullable)sharedInstance {
+    return _sharedInstance;
+}
+
 + (NSString *)sdkVersion {
   return @"5.1.1"; // Update this version with every SDK release.
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
-    
+
     FlutterMethodChannel *methodChannel = [FlutterMethodChannel methodChannelWithName:@"plugins.flutter.io/plaid_flutter"
                                                                 binaryMessenger:[registrar messenger]];
 
@@ -44,28 +50,23 @@ static NSString* const kSimulatedBehavior = @"simulatedBehavior";
                                                                   binaryMessenger:[registrar messenger]];
 
     PlaidFlutterPlugin *instance = [[PlaidFlutterPlugin alloc] init];
+    _sharedInstance = instance;
     [registrar addMethodCallDelegate:instance channel:methodChannel];
     [eventChannel setStreamHandler:instance];
-    [registrar addApplicationDelegate:instance];
 
     PLKEmbeddedViewFactory* factory = [[PLKEmbeddedViewFactory alloc] initWithMessenger:registrar.messenger emitter:instance];
     [registrar registerViewFactory:factory withId:@"plaid/embedded-view"];
 }
 
-#pragma mark Universal Link handling
-
-- (BOOL)application:(UIApplication *)application
-    continueUserActivity:(NSUserActivity *)userActivity
-    restorationHandler:(void (^)(NSArray *))restorationHandler {
-    NSURL *url = userActivity.webpageURL;
-    NSLog(@"PlaidFlutterPlugin: continueUserActivity called, url=%@, handler=%@", url, _linkHandler ? @"alive" : @"nil");
-    if (url && _linkHandler) {
-        NSLog(@"PlaidFlutterPlugin: calling resumeAfterTermination with url=%@", url);
+- (BOOL)handleUniversalLink:(NSURL *_Nonnull)url {
+    NSLog(@"PlaidFlutterPlugin: handleUniversalLink called, url=%@, handler=%@", url, _linkHandler ? @"alive" : @"nil");
+    if (_linkHandler) {
         [_linkHandler resumeAfterTermination:url];
         return YES;
     }
     return NO;
 }
+
 
 - (void)dealloc {
   _linkHandler = nil;

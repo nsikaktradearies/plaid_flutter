@@ -3,6 +3,9 @@
 
 @interface PlaidFlutterPlugin : NSObject<FlutterPlugin>
 
++ (instancetype _Nullable)sharedInstance;
+- (BOOL)handleUniversalLink:(NSURL *_Nonnull)url;
+
 + (NSDictionary *_Nonnull)dictionaryFromSuccessMetadata:(PLKSuccessMetadata *_Nonnull)metadata;
 + (NSDictionary *_Nonnull)dictionaryFromEventMetadata:(PLKEventMetadata *_Nonnull)metadata;
 + (NSDictionary *_Nonnull)dictionaryFromExitMetadata:(PLKExitMetadata *_Nonnull)metadata;
