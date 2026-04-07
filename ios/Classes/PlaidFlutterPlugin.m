@@ -2,6 +2,7 @@
 #import "PlaidFlutterPlugin.h"
 #import "PLKEmbeddedView.h"
 #import "PLKEventEmitterProtocol.h"
+#import <WebKit/WebKit.h>
 
 static NSString* const kTokenKey = @"token";
 static NSString* const kPhoneNumberKey = @"phoneNumber";
@@ -67,6 +68,23 @@ static PlaidFlutterPlugin *_sharedInstance = nil;
     return NO;
 }
 
+- (void)reloadPresentedWebView {
+    NSLog(@"PlaidFlutterPlugin: reloadPresentedWebView called, presentedVC=%@", _presentedViewController ? @"alive" : @"nil");
+    if (_presentedViewController) {
+        [self findAndReloadWebViewIn:_presentedViewController.view];
+    }
+}
+
+- (void)findAndReloadWebViewIn:(UIView *)view {
+    if ([view isKindOfClass:[WKWebView class]]) {
+        NSLog(@"PlaidFlutterPlugin: Found WKWebView, reloading");
+        [(WKWebView *)view reload];
+        return;
+    }
+    for (UIView *subview in view.subviews) {
+        [self findAndReloadWebViewIn:subview];
+    }
+}
 
 - (void)dealloc {
   _linkHandler = nil;
