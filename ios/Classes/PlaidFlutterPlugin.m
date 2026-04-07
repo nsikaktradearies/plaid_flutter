@@ -58,7 +58,9 @@ static NSString* const kSimulatedBehavior = @"simulatedBehavior";
     continueUserActivity:(NSUserActivity *)userActivity
     restorationHandler:(void (^)(NSArray *))restorationHandler {
     NSURL *url = userActivity.webpageURL;
+    NSLog(@"PlaidFlutterPlugin: continueUserActivity called, url=%@, handler=%@", url, _linkHandler ? @"alive" : @"nil");
     if (url && _linkHandler) {
+        NSLog(@"PlaidFlutterPlugin: calling resumeAfterTermination with url=%@", url);
         [_linkHandler resumeAfterTermination:url];
         return YES;
     }
