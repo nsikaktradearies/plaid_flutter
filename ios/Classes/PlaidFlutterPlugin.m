@@ -46,9 +46,23 @@ static NSString* const kSimulatedBehavior = @"simulatedBehavior";
     PlaidFlutterPlugin *instance = [[PlaidFlutterPlugin alloc] init];
     [registrar addMethodCallDelegate:instance channel:methodChannel];
     [eventChannel setStreamHandler:instance];
-    
+    [registrar addApplicationDelegate:instance];
+
     PLKEmbeddedViewFactory* factory = [[PLKEmbeddedViewFactory alloc] initWithMessenger:registrar.messenger emitter:instance];
     [registrar registerViewFactory:factory withId:@"plaid/embedded-view"];
+}
+
+#pragma mark Universal Link handling
+
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+    restorationHandler:(void (^)(NSArray *))restorationHandler {
+    NSURL *url = userActivity.webpageURL;
+    if (url && _linkHandler) {
+        [_linkHandler resumeAfterTermination:url];
+        return YES;
+    }
+    return NO;
 }
 
 - (void)dealloc {
